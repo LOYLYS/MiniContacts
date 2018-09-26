@@ -4,6 +4,7 @@
     android:id="@+id/linear_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
     <android.support.v7.widget.RecyclerView

@@ -32,6 +32,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     @Override
     public void onBindViewHolder(@NonNull ContactHolder holder, int position) {
         holder.bindData(mContacts.get(position));
+        holder.onItemClick(position);
     }
 
     @Override
@@ -48,11 +49,16 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         notifyItemInserted(mContacts.size() - 1);
     }
 
+    public void removeContact(int position) {
+        mContacts.remove(position);
+        notifyItemRemoved(position);
+    }
+
     public Contact getContact(int position) {
         return mContacts.get(position);
     }
 
-    static class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mAvatar;
         private TextView mName;
         private TextView mPhone;
@@ -98,6 +104,28 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
             } else {
                 mFavourite.setImageResource(R.drawable.ic_favourite);
             }
+        }
+
+        public void onItemClick(final int position) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mContactListener.onContactClick(mContact);
+                }
+            });
+            mCall.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mContactListener.onCallClick(position);
+                }
+            });
+
+            mFavourite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mContactListener.onFavouriteClick(position);
+                }
+            });
         }
     }
 }

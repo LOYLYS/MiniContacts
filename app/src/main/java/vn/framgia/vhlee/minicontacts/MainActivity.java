@@ -2,6 +2,7 @@ package vn.framgia.vhlee.minicontacts;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -65,8 +66,7 @@ public class MainActivity extends AppCompatActivity implements ItemContactListen
 
     @Override
     public void onContactClick(Contact contact) {
-        Snackbar.make(findViewById(R.id.linear_main_layout),
-                contact.getName(), Snackbar.LENGTH_SHORT).show();
+        showMessage(findViewById(R.id.linear_main_layout), contact.getName());
     }
 
     @Override
@@ -79,9 +79,27 @@ public class MainActivity extends AppCompatActivity implements ItemContactListen
     @Override
     public void onFavouriteClick(int position) {
         Contact contact = mAdapter.getContact(position);
-        if (contact.isFavourite()) contact.setFavourite(false);
-        else contact.setFavourite(true);
+        if (contact.isFavourite()) {
+            contact.setFavourite(false);
+            removeFromProvider(contact);
+        } else contact.setFavourite(true);
         mAdapter.notifyItemChanged(position);
+        insertToProvider(contact);
+    }
+
+    private void removeFromProvider(Contact contact) {
+        int value = getContentResolver().
+                delete(Constants.CONTENT_URI,
+                        Constants.SQL_WHERE, new String[]{contact.getId()});
+    }
+
+    private void insertToProvider(Contact contact) {
+        ContentValues values = new ContentValues();
+        values.put(Constants.COL_ID, contact.getId());
+        values.put(Constants.COL_NAME, contact.getName());
+        values.put(Constants.COL_PHONE, contact.getPhone());
+        Uri uri = getContentResolver().insert(Constants.CONTENT_URI, values);
+        showMessage(findViewById(R.id.linear_main_layout), uri.toString());
     }
 
     public static Intent getCallIntent(String phoneNumber) {
@@ -109,6 +127,24 @@ public class MainActivity extends AppCompatActivity implements ItemContactListen
         startActivity(intent);
     }
 
+    private void readContacts() {
+        Uri contactsTable = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+        String[] projection = {
+                ContactsContract.CommonDataKinds.Phone._ID,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+        };
+        Cursor cursor = getContentResolver()
+                .query(contactsTable, projection,
+                        null, null, SORT_ORDER);
+        while (cursor.moveToNext()) {
+            String id = cursor.getString(Constants.KEY_ID);
+            String name = cursor.getString(Constants.KEY_NAME);
+            String phone = cursor.getString(Constants.KEY_PHONE);
+            mAdapter.addContact(new Contact(id, name, phone));
+        }
+    }
+
     private void initUI() {
         RecyclerView recycler = findViewById(R.id.recycler_contacts);
         mAdapter = new ContactAdapter(this);
@@ -127,24 +163,6 @@ public class MainActivity extends AppCompatActivity implements ItemContactListen
             case Manifest.permission.CALL_PHONE:
                 makeCall(mPhoneNumber);
                 break;
-        }
-    }
-
-    private void readContacts() {
-        Uri contactsTable = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        String[] projection = {
-                ContactsContract.CommonDataKinds.Phone._ID,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER
-        };
-        Cursor cursor = getContentResolver()
-                .query(contactsTable, projection,
-                        null, null, SORT_ORDER);
-        while (cursor.moveToNext()) {
-            String id = cursor.getString(0);
-            String name = cursor.getString(1);
-            String phone = cursor.getString(2);
-            mAdapter.addContact(new Contact(id, name, phone));
         }
     }
 }
