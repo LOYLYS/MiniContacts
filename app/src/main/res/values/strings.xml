@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mini Contacts</string>
+    <string name="msg_error_call">Do not have permission to call</string>
 </resources>

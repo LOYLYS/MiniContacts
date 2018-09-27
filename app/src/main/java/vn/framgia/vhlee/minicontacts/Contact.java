@@ -1,23 +1,23 @@
 package vn.framgia.vhlee.minicontacts;
 
 public class Contact {
-    private int mId;
+    private String mId;
     private String mName;
     private String mPhone;
     private boolean isFavourite;
 
-    public Contact(int mId, String mName, String mPhone) {
-        this.mId = mId;
-        this.mName = mName;
-        this.mPhone = mPhone;
+    public Contact(String id, String name, String phone) {
+        mId = id;
+        mName = name;
+        mPhone = phone;
         this.isFavourite = false;
     }
 
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         mId = id;
     }
 
