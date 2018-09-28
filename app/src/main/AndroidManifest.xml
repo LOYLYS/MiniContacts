@@ -19,6 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="vn.framgia.vhlee.minicontacts.CustomProvider"
+            android:authorities="vhlee.minicontacts"
+            android:multiprocess="true"
+            android:exported="true"/>
+
     </application>
 
 </manifest>
